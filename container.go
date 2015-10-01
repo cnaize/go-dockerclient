@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -351,6 +352,43 @@ func (c *Client) ContainerChanges(id string) ([]Change, error) {
 		return nil, err
 	}
 	return changes, nil
+}
+
+type ContainerSetOptions struct {
+	Id         string
+	Memory     int64
+	HostConfig *HostConfig `qs:"-"`
+}
+
+func (c *Client) ContainerSet(id string, opts ContainerSetOptions) error {
+	opts.HostConfig.Memory = opts.Memory
+
+	path := "/containers/" + opts.Id + "/set"
+	resp, err := c.do(
+		"POST",
+		path,
+		doOptions{
+			data: struct {
+				HostConfig *HostConfig `json:"HostConfig,omitempty" yaml:"HostConfig,omitempty"`
+			}{
+				opts.HostConfig,
+			},
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("HERE: %v\n", string(body))
+
+	return nil
 }
 
 // CreateContainerOptions specify parameters to the CreateContainer function.
