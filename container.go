@@ -354,13 +354,8 @@ func (c *Client) ContainerChanges(id string) ([]Change, error) {
 	return changes, nil
 }
 
-type SetContainerOptions struct {
-	ID         string      `qs:"-"`
-	HostConfig *HostConfig `json:"HostConfig,omitempty" yaml:"HostConfig,omitempty"`
-}
-
 func (c *Client) SetContainer(id string, hostConfig *HostConfig) error {
-	path := "/containers/" + opts.ID + "/set"
+	path := "/containers/" + id + "/set"
 	resp, err := c.do(
 		"POST",
 		path,
@@ -379,7 +374,7 @@ func (c *Client) SetContainer(id string, hostConfig *HostConfig) error {
 		return err
 	}
 
-	fmt.Printf("HERE: %v\n", string(body))
+	fmt.Printf("SET CONTAINER: %v\n", string(body))
 
 	return nil
 }
