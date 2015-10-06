@@ -356,24 +356,16 @@ func (c *Client) ContainerChanges(id string) ([]Change, error) {
 
 type SetContainerOptions struct {
 	ID         string      `qs:"-"`
-	HostConfig *HostConfig `qs:"-"`
-
-	Memory int64 `json:"memory,omitempty" yaml:"memory,omitempty"`
+	HostConfig *HostConfig `json:"HostConfig,omitempty" yaml:"HostConfig,omitempty"`
 }
 
-func (c *Client) SetContainer(opts SetContainerOptions) error {
-	opts.HostConfig.Memory = opts.Memory
-
+func (c *Client) SetContainer(id string, hostConfig *HostConfig) error {
 	path := "/containers/" + opts.ID + "/set"
 	resp, err := c.do(
 		"POST",
 		path,
 		doOptions{
-			data: struct {
-				HostConfig *HostConfig `json:"HostConfig,omitempty" yaml:"HostConfig,omitempty"`
-			}{
-				opts.HostConfig,
-			},
+			data: hostConfig,
 		},
 	)
 
